@@ -1,7 +1,7 @@
 package _1
 
 import (
-	"adventofcode2024/util"
+	"adventofcode2024/challenges/util"
 	"fmt"
 	"log"
 	"sort"

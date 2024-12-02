@@ -1,7 +1,7 @@
 package _2
 
 import (
-	"adventofcode2024/util"
+	"adventofcode2024/challenges/util"
 )
 
 func redNosedReports(filename string) (int, error) {
