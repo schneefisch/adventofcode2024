@@ -42,7 +42,7 @@ func ReadSpaceSeparatedData(filename string) ([][]int, error) {
 		return nil, err
 	}
 
-	// close file
+	// close file after function ends
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
@@ -54,10 +54,11 @@ func ReadSpaceSeparatedData(filename string) ([][]int, error) {
 	data := make([][]int, 0)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
+		// read line as string and split by whitespace
 		lineStr := scanner.Text()
 		line := strings.Split(lineStr, " ")
-		//log.Println(line)
 
+		// convert strings to integers
 		numbers := make([]int, 0)
 		for _, numStr := range line {
 			num, err := strconv.Atoi(numStr)
@@ -66,7 +67,6 @@ func ReadSpaceSeparatedData(filename string) ([][]int, error) {
 			}
 			numbers = append(numbers, num)
 		}
-
 		data = append(data, numbers)
 	}
 	if err = scanner.Err(); err != nil {
