@@ -75,3 +75,32 @@ func ReadSpaceSeparatedData(filename string) ([][]int, error) {
 
 	return data, nil
 }
+
+// ReadLines reads a file line by line and returns a slice of strings.
+func ReadLines(filename string) ([]string, error) {
+	// read file
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	// close file after function ends
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(file)
+
+	// read data line-by-line
+	data := make([]string, 0)
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		data = append(data, scanner.Text())
+	}
+	if err = scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}

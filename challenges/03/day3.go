@@ -1,0 +1,115 @@
+package _3
+
+import (
+	"adventofcode2024/challenges/util"
+	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
+)
+
+func DaythreeMullitover(filename string) (int, error) {
+	lines, err := util.ReadLines(filename)
+	if err != nil {
+		return 0, err
+	}
+	// add all lines into one string
+	line := ""
+	for _, l := range lines {
+		line += l
+	}
+
+	// remove don't instructions
+	line = removeDonts(line)
+
+	log.Println(line)
+
+	// get all mull-instances
+	mulInstances := parseMulInstances(line)
+	mulMap, err := parseMulNumbers(mulInstances)
+	if err != nil {
+		return 0, err
+	}
+	log.Println(mulMap)
+
+	// addMultiplications
+	result := 0
+	for _, mul := range mulMap {
+		result += mul.n1 * mul.n2
+	}
+
+	return result, nil
+}
+
+// parse through the string and remove all characters that are in between a
+// "don't()" a "do()" instruction
+func removeDonts(line string) string {
+	// split string at "don't()" and "do()"
+	splitDonts := strings.Split(line, "don't()")
+	log.Println(splitDonts)
+
+	// it starts with valid-expression, so the first part is always valid
+	validInstructions := splitDonts[0]
+	// iterate through the rest of the split
+	for _, part := range splitDonts[1:] {
+		// split at a "do()" instruction
+		splitDos := strings.Split(part, "do()")
+		// add only the second part, after the "do()" instruction if it exists
+		if len(splitDos) > 1 {
+			// add all consecutive do's
+			for _, do := range splitDos[1:] {
+				validInstructions += do
+			}
+		}
+	}
+
+	return validInstructions
+}
+
+// MulNumbers is a struct that holds a list of the two numbers
+type MulNumbers struct {
+	n1 int
+	n2 int
+}
+
+func parseMulNumbers(mulInstances []string) ([]MulNumbers, error) {
+	mulMap := make([]MulNumbers, 0)
+	for _, mulInst := range mulInstances {
+		// get the two numbers from the mul-instance
+		n1, n2, err := parseMulNumbersFromInstance(mulInst)
+		if err != nil {
+			return nil, err
+		}
+		mulMap = append(mulMap, MulNumbers{n1, n2})
+	}
+	return mulMap, nil
+}
+
+func parseMulNumbersFromInstance(mulInst string) (int, int, error) {
+	// regex to match the numbers
+	re := regexp.MustCompile("\\d{1,3}")
+	// get all numbers
+	nums := re.FindAllString(mulInst, -1)
+	// expect exactly two numbers
+	if len(nums) != 2 {
+		return 0, 0, fmt.Errorf("expected 2 numbers, got %d", len(nums))
+	}
+	// convert the numbers to integers
+	n1, err := strconv.Atoi(nums[0])
+	if err != nil {
+		return 0, 0, err
+	}
+	n2, err := strconv.Atoi(nums[1])
+	if err != nil {
+		return 0, 0, err
+	}
+	return n1, n2, nil
+}
+
+func parseMulInstances(line string) []string {
+	// regular expression to match the mull-instances
+	re := regexp.MustCompile("mul\\(\\d{1,3},\\d{1,3}\\)")
+	// get all mull-instances
+	return re.FindAllString(line, -1)
+}
