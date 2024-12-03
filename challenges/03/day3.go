@@ -9,6 +9,12 @@ import (
 	"strings"
 )
 
+// MulNumbers is a struct that holds a list of the two numbers
+type MulNumbers struct {
+	n1 int
+	n2 int
+}
+
 func DaythreeMullitover(filename string) (int, error) {
 	lines, err := util.ReadLines(filename)
 	if err != nil {
@@ -26,7 +32,7 @@ func DaythreeMullitover(filename string) (int, error) {
 	log.Println(line)
 
 	// get all mull-instances
-	mulInstances := parseMulInstances(line)
+	mulInstances := findAllMulInstances(line)
 	mulMap, err := parseMulNumbers(mulInstances)
 	if err != nil {
 		return 0, err
@@ -67,12 +73,9 @@ func removeDonts(line string) string {
 	return validInstructions
 }
 
-// MulNumbers is a struct that holds a list of the two numbers
-type MulNumbers struct {
-	n1 int
-	n2 int
-}
-
+/*
+ * parseMulNumbers parses the mul-instance String and returns a list of MulNumbers.
+ */
 func parseMulNumbers(mulInstances []string) ([]MulNumbers, error) {
 	mulMap := make([]MulNumbers, 0)
 	for _, mulInst := range mulInstances {
@@ -86,6 +89,9 @@ func parseMulNumbers(mulInstances []string) ([]MulNumbers, error) {
 	return mulMap, nil
 }
 
+/*
+ * parseMulNumbersFromInstance parses the two numbers from a single mul-instance String.
+ */
 func parseMulNumbersFromInstance(mulInst string) (int, int, error) {
 	// regex to match the numbers
 	re := regexp.MustCompile("\\d{1,3}")
@@ -107,7 +113,10 @@ func parseMulNumbersFromInstance(mulInst string) (int, int, error) {
 	return n1, n2, nil
 }
 
-func parseMulInstances(line string) []string {
+/*
+ * findAllMulInstances finds all mul-instances in a given string.
+ */
+func findAllMulInstances(line string) []string {
 	// regular expression to match the mull-instances
 	re := regexp.MustCompile("mul\\(\\d{1,3},\\d{1,3}\\)")
 	// get all mull-instances
