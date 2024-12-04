@@ -4,8 +4,12 @@ import (
 	"adventofcode2024/challenges/util"
 	"log"
 	"regexp"
-	"strings"
 )
+
+type Location struct {
+	x int
+	y int
+}
 
 func CeresSearch(filename string) (int, error) {
 	lines, err := util.ReadLines(filename)
@@ -24,11 +28,6 @@ func CeresSearch(filename string) (int, error) {
 	xmasOccurences := findDiagonalOccurrencesInMap(rotatedMap)
 
 	return xmasOccurences, nil
-}
-
-type Location struct {
-	x int
-	y int
 }
 
 func findDiagonalOccurrencesInMap(matrix [][]rune) int {
@@ -66,14 +65,6 @@ func findDiagonalOccurrencesInMap(matrix [][]rune) int {
 			// the last string is the top-right corner of the matrix.
 			// e.g. the third string ("l") is "SAM", the middle character has index 1
 			// the Location should be (in a 10x10 matrix) (8, 1)
-			//
-			// for a 10x10 matrix we have 19 diagonals (2*len(matrix)-1)
-			// for the first 10
-			// for the test-input the diagonal locations should be
-			//lineSubtract := 0
-			//if l > n {
-			//    lineSubtract = l - n
-			//}
 			xcorrection := n - l - 1
 			if xcorrection < 0 {
 				xcorrection = 0
@@ -108,6 +99,9 @@ func findDiagonalOccurrencesInMap(matrix [][]rune) int {
 		index := reg.FindAllStringIndex(diag, -1)
 		index = append(index, regReverse.FindAllStringIndex(diag, -1)...)
 		for _, i := range index {
+			// calculating x/y coordinates for the middle character
+			// this diagonal is from the top-right to the bottom-left
+			// so we need to correct the x/y coordinates starting from the bottom-right corner
 			stringIndex := i[0] + 1
 			xcorrection := n - l - 1
 			if l >= n {
@@ -137,39 +131,4 @@ func findDiagonalOccurrencesInMap(matrix [][]rune) int {
 	}
 
 	return occurrences
-}
-
-// reverseString reverses a string.
-func reverseString(s string) string {
-	// reversing the order of the string
-	runes := []rune(s)
-	reversed := make([]rune, len(runes))
-	for i, j := range runes {
-		reversed[len(runes)-1-i] = j
-	}
-	return string(reversed)
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func findOccurrencesInMap(runeMap [][]rune) int {
-	xmasOccurences := 0
-	for _, row := range runeMap {
-		rowString := string(row)
-		xmasOccurences += strings.Count(rowString, "XMAS")
-		xmasOccurences += strings.Count(rowString, "SAMX")
-	}
-	return xmasOccurences
 }
