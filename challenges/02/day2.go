@@ -47,10 +47,7 @@ func isReportSafe(report []int) bool {
 
 	safe1, _ := isSafe(shortenedReport1, incr)
 	safe2, _ := isSafe(shortenedReport2, incr)
-	if !safe1 && !safe2 {
-		return false
-	}
-	return true
+	return safe1 || safe2
 }
 
 func remove(report []int, i int) []int {
