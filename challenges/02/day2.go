@@ -17,13 +17,13 @@ func redNosedReports(filename string) (int, error) {
  * checkReports iterates through all reports and counts how many are considered safe.
  */
 func checkReports(data [][]int) (int, error) {
-	saveReports := 0
+	safeReports := 0
 	for _, line := range data {
-		if isReportSave(line) {
-			saveReports++
+		if isReportSafe(line) {
+			safeReports++
 		}
 	}
-	return saveReports, nil
+	return safeReports, nil
 }
 
 /*
@@ -32,7 +32,7 @@ func checkReports(data [][]int) (int, error) {
  * - The levels are either all increasing or all decreasing.
  * - Any two adjacent levels differ by at least one and at most three.
  */
-func isReportSave(report []int) bool {
+func isReportSafe(report []int) bool {
 	// compare first and last element to determine if the list is increasing or decreasing
 	incr := isIncreasing(report)
 	safe, place := isSafe(report, incr)
