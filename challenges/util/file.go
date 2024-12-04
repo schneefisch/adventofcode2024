@@ -104,3 +104,38 @@ func ReadLines(filename string) ([]string, error) {
 
 	return data, nil
 }
+
+// SplitLinesToCharacterMap splits the lines into a map of characters.
+func SplitLinesToCharacterMap(lines []string) [][]rune {
+	runeMap := make([][]rune, 0)
+	for _, line := range lines {
+		runeMap = append(runeMap, []rune(line))
+	}
+	return runeMap
+}
+
+// RotateMatrix rotates a matrix of integers or runes by 90 degrees.
+func RotateMatrix(matrix [][]rune) [][]rune {
+	n := len(matrix)
+	if n == 0 {
+		return matrix
+	}
+	m := len(matrix[0])
+	rotated := make([][]rune, m)
+	for i := range rotated {
+		rotated[i] = make([]rune, n)
+	}
+	for i := 0; i < n; i++ {
+		for j := 0; j < m; j++ {
+			rotated[j][n-i-1] = matrix[i][j]
+		}
+	}
+	return rotated
+}
+
+// PrintMap prints a map of characters.
+func PrintMap(matrix [][]rune) {
+	for _, row := range matrix {
+		log.Println(string(row))
+	}
+}
