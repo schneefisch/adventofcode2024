@@ -114,16 +114,16 @@ func SplitLinesToCharacterMap(lines []string) [][]rune {
 	return runeMap
 }
 
-// RotateMatrix rotates a matrix of integers or runes by 90 degrees.
-func RotateMatrix(matrix [][]rune) [][]rune {
+// RotateMatrix rotates a matrix by 90 degrees.
+func RotateMatrix[T any](matrix [][]T) [][]T {
 	n := len(matrix)
 	if n == 0 {
 		return matrix
 	}
 	m := len(matrix[0])
-	rotated := make([][]rune, m)
+	rotated := make([][]T, m)
 	for i := range rotated {
-		rotated[i] = make([]rune, n)
+		rotated[i] = make([]T, n)
 	}
 	for i := 0; i < n; i++ {
 		for j := 0; j < m; j++ {

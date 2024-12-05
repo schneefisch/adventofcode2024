@@ -25,14 +25,14 @@ func CeresSearch(filename string) (int, error) {
 
 	//xmasOccurences := findOccurrencesInMap(runeMap)
 	//xmasOccurences += findOccurrencesInMap(rotatedMap)
-	xmasOccurences := findDiagonalOccurrencesInMap(rotatedMap)
+	xmasOccurences := findDiagonalOccurrencesInMap(rotatedMap, "MAS")
 
 	return xmasOccurences, nil
 }
 
-func findDiagonalOccurrencesInMap(matrix [][]rune) int {
-	reg := regexp.MustCompile("MAS")
-	regReverse := regexp.MustCompile("SAM")
+func findDiagonalOccurrencesInMap(matrix [][]rune, searchString string) int {
+	reg := regexp.MustCompile(searchString)
+	regReverse := regexp.MustCompile(invertString(searchString))
 
 	n := len(matrix)
 	if n == 0 {
@@ -131,4 +131,17 @@ func findDiagonalOccurrencesInMap(matrix [][]rune) int {
 	}
 
 	return occurrences
+}
+
+func invertString(input string) string {
+	// should invert the string
+	if len(input) == 0 {
+		return input
+	}
+
+	runes := []rune(input)
+	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+		runes[i], runes[j] = runes[j], runes[i]
+	}
+	return string(runes)
 }
