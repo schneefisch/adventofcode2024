@@ -102,7 +102,7 @@ func fixPageOrdering(update Update, graph *Graph) Update {
 			// check if the page has to be inserted before the existing page
 			if laterNeighbours, ok := graph.vertices[page]; ok {
 				if contains(laterNeighbours, insertedPage) {
-					log.Printf("Page [%d] has to be inserted before page [%d]", page, insertedPage)
+					//log.Printf("Page [%d] has to be inserted before page [%d]", page, insertedPage)
 					// shift all pages from that index to the right and insert the page at the current index
 					for k := len(result.pages) - 1; k > j; k-- {
 						result.pages[k] = result.pages[k-1]
