@@ -1,6 +1,6 @@
 # adventofcode2024
 
-![main workflow](https://github.com/schneefisch/adventofcode2024/actions/workflows/go.yaml/badge.svg?event=push)
+![main workflow](https://github.com/schneefisch/adventofcode2024/actions/workflows/go.yaml/badge.svg)
 
 
 This repository contains my solutions for the
