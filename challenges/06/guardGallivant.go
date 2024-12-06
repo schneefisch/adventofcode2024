@@ -2,7 +2,6 @@ package _6
 
 import (
 	"adventofcode2024/challenges/util"
-	"log"
 )
 
 type Direction int
@@ -51,24 +50,66 @@ func (g *Guard) turnRight() {
 	}
 }
 
+type Visited struct {
+	visited   bool
+	direction Direction
+}
+
 type LabMap struct {
 	width   int
 	height  int
 	lab     [][]rune
-	visited [][]bool
+	visited [][]Visited
 	guard   *Guard
+	start   Coordinate
 }
 
+var (
+	input = make([]string, 0)
+)
+
 func (l *LabMap) isObstacle(x, y int) bool {
+	if x >= l.width || y >= l.height {
+		return false
+	}
 	return l.lab[y][x] == '#'
 }
 
-func (l *LabMap) isVisited(x, y int) bool {
-	return l.visited[y][x]
+func (l *LabMap) isVisited(x, y int) (bool, Direction) {
+	return l.visited[y][x].visited, l.visited[y][x].direction
 }
 
-func (l *LabMap) markVisited(x, y int) {
-	l.visited[y][x] = true
+func (l *LabMap) markVisited(old, new Coordinate, d Direction) {
+	l.visited[new.y][new.x] = Visited{
+		visited:   true,
+		direction: d,
+	}
+	// if the old position is not the initial position, draw a line in the map
+	if old.x == -1 || old.y == -1 {
+		return
+	}
+	// draw a line from the old position to the new position
+	line := '.'
+	switch d {
+	case Up, Down:
+		line = '|'
+	case Right, Left:
+		line = '-'
+	}
+	l.lab[old.y][old.x] = line
+	// place the arrow in the right position
+	arrow := '^'
+	switch d {
+	case Up:
+		arrow = '^'
+	case Right:
+		arrow = '>'
+	case Down:
+		arrow = 'v'
+	case Left:
+		arrow = '<'
+	}
+	l.lab[new.y][new.x] = arrow
 }
 
 func (l *LabMap) inMap(x, y int) bool {
@@ -79,35 +120,23 @@ func (l *LabMap) inMap(x, y int) bool {
 // will return false if the guard left the map, true otherwise
 func (l *LabMap) walkGuard() bool {
 	// determine next position
-	nextPos := Coordinate{
-		x: l.guard.pos.x,
-		y: l.guard.pos.y,
-	}
-	switch l.guard.facing {
-	case Up:
-		nextPos.y--
-	case Right:
-		nextPos.x++
-	case Down:
-		nextPos.y++
-	case Left:
-		nextPos.x--
-	}
+	next := nextPos(l.guard.pos, l.guard.facing)
 	// check if the next position out of the map
-	if !l.inMap(nextPos.x, nextPos.y) {
+	if !l.inMap(next.x, next.y) {
 		return false
 	}
 
 	// check if the next position is an obstacle
-	if l.isObstacle(nextPos.x, nextPos.y) {
+	if l.isObstacle(next.x, next.y) {
 		l.guard.turnRight()
 		return true
 	}
 
-	// otherwise move the guard to the next position
-	l.guard.pos = nextPos
 	// mark the new position as visited
-	l.markVisited(nextPos.x, nextPos.y)
+	l.markVisited(l.guard.pos, next, l.guard.facing)
+
+	// move the guard to the next position
+	l.guard.pos = next
 	return true
 }
 
@@ -116,43 +145,119 @@ func newLabMap(w, h int) *LabMap {
 		width:   w,
 		height:  h,
 		lab:     make([][]rune, h),
-		visited: make([][]bool, h),
+		visited: make([][]Visited, h),
 		guard: &Guard{
 			pos:    Coordinate{},
 			facing: Up,
 		},
 	}
 	for i := range labMap.visited {
-		labMap.visited[i] = make([]bool, w)
+		labMap.visited[i] = make([]Visited, w)
 	}
 	return labMap
 }
 
-func GuardGallivant(filename string) (int, error) {
-	input, err := util.ReadLines(filename)
+// GuardGallivant calculates the Day 6 challenge of the adventOfCode2024
+func GuardGallivant(filename string) (int, int, error) {
+	newInput, err := util.ReadLines(filename)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
+	input = newInput
 	labMap := parseMap(input)
 	util.PrintMap(labMap.lab)
 
 	// walk the guard and mark visited until she leaves the map
 	for labMap.walkGuard() {
-		// do nothing
-		log.Printf("Guard position: %v", labMap.guard)
+		//log.Printf("Guard position: %v", labMap.guard)
+		//util.PrintMap(labMap.lab)
 	}
 
 	// count visited cells
 	visitedCount := countVisited(labMap)
 
-	return visitedCount, nil
+	// for all visited cells, check if the position could be an obstacle that leads the
+	// guard into an endless loop
+	obstacleCount := findPossibleObstacles(labMap)
+
+	return visitedCount, obstacleCount, nil
+}
+
+// findPossibleObstacles iterates over all visited cells and checks if the position could be an obstacle
+// that leads the guard into an endless loop
+// returns the number of possible obstacles
+func findPossibleObstacles(labMap *LabMap) int {
+	// iterate over all visited cells and check if that would be a possible obstacle
+	count := 0
+	for y, row := range labMap.lab {
+		for x := range row {
+			if visited, _ := labMap.isVisited(x, y); visited {
+				if possible, _ := isPossibleObstacle(labMap, x, y); possible {
+					count++
+				}
+			}
+		}
+	}
+	return count
+}
+
+// isPossibleObstacle creates a new obstacle in the map
+// then walks the guard from the initial position until he
+// a) leaves the map, then it's not a possible obstacle
+// b) walks into a place he has visited before in the same direction, then it's a possible obstacle
+func isPossibleObstacle(labMap *LabMap, x, y int) (bool, Coordinate) {
+	// new obstacle-position
+	pos := Coordinate{x, y}
+
+	modifiedMap := parseMap(input)
+	// add new obstacle
+	modifiedMap.lab[y][x] = '#'
+
+	// walk the guard until he leaves the map or walks into a visited cell
+	for modifiedMap.walkGuard() {
+		// get next position
+		next := nextPos(modifiedMap.guard.pos, modifiedMap.guard.facing)
+		if !modifiedMap.inMap(next.x, next.y) {
+			continue
+		}
+		if modifiedMap.isObstacle(next.x, next.y) {
+			continue
+		}
+
+		if visited, d := modifiedMap.isVisited(next.x, next.y); visited && d == modifiedMap.guard.facing {
+			// found a place where the guard has visited before in the same direction
+			//log.Printf("Found possible obstacle at %v", pos)
+			//util.PrintMap(modifiedMap.lab)
+			return true, pos
+		}
+	}
+
+	return false, pos
+}
+
+func nextPos(c Coordinate, d Direction) Coordinate {
+	next := Coordinate{
+		x: c.x,
+		y: c.y,
+	}
+	switch d {
+	case Up:
+		next.y--
+	case Right:
+		next.x++
+	case Down:
+		next.y++
+	case Left:
+		next.x--
+	}
+	return next
 }
 
 func countVisited(labMap *LabMap) int {
 	count := 0
 	for y, row := range labMap.lab {
 		for x := range row {
-			if labMap.isVisited(x, y) {
+			if visited, _ := labMap.isVisited(x, y); visited {
 				count++
 			}
 		}
@@ -173,14 +278,15 @@ func parseMap(input []string) *LabMap {
 			if isGuard(cell) {
 				labMap.guard.pos = Coordinate{x, y}
 				labMap.guard.facing = labMap.guard.directionFromRune(cell)
+				labMap.start = Coordinate{x, y}
 				break
 			}
 		}
 	}
-	log.Printf("Guard initial position: %v", labMap.guard)
+	//log.Printf("Guard initial position: %v", labMap.guard)
 
 	// mark first position as visited
-	labMap.markVisited(labMap.guard.pos.x, labMap.guard.pos.y)
+	labMap.markVisited(Coordinate{x: -1, y: -1}, labMap.guard.pos, labMap.guard.facing)
 
 	return labMap
 }
