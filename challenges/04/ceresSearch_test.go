@@ -19,7 +19,7 @@ func TestCeresSearch(t *testing.T) {
 		{
 			name:     "Real input",
 			filename: "input.txt",
-			want:     0,
+			want:     1854,
 			wantErr:  false,
 		},
 	}
