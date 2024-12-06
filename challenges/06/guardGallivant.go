@@ -2,6 +2,7 @@ package _6
 
 import (
 	"adventofcode2024/challenges/util"
+	"log"
 )
 
 type Direction int
@@ -13,6 +14,10 @@ const (
 	Left
 )
 
+var (
+	input = make([]string, 0)
+)
+
 type Coordinate struct {
 	x, y int
 }
@@ -20,6 +25,20 @@ type Coordinate struct {
 type Guard struct {
 	pos    Coordinate
 	facing Direction
+}
+
+type Visited struct {
+	visited   bool
+	direction Direction
+}
+
+type LabMap struct {
+	width   int
+	height  int
+	lab     [][]rune
+	visited [][]Visited
+	guard   *Guard
+	start   Coordinate
 }
 
 func (g *Guard) directionFromRune(r rune) Direction {
@@ -50,36 +69,26 @@ func (g *Guard) turnRight() {
 	}
 }
 
-type Visited struct {
-	visited   bool
-	direction Direction
-}
-
-type LabMap struct {
-	width   int
-	height  int
-	lab     [][]rune
-	visited [][]Visited
-	guard   *Guard
-	start   Coordinate
-}
-
-var (
-	input = make([]string, 0)
-)
-
 func (l *LabMap) isObstacle(x, y int) bool {
-	if x >= l.width || y >= l.height {
+	if !l.inMap(x, y) {
 		return false
 	}
 	return l.lab[y][x] == '#'
 }
 
 func (l *LabMap) isVisited(x, y int) (bool, Direction) {
+	if !l.inMap(x, y) {
+		return false, Up
+	}
+
 	return l.visited[y][x].visited, l.visited[y][x].direction
 }
 
 func (l *LabMap) markVisited(old, new Coordinate, d Direction) {
+	if !l.inMap(new.x, new.y) {
+		log.Fatalf("Invalid position: %v", new)
+	}
+
 	l.visited[new.y][new.x] = Visited{
 		visited:   true,
 		direction: d,
@@ -112,6 +121,7 @@ func (l *LabMap) markVisited(old, new Coordinate, d Direction) {
 	l.lab[new.y][new.x] = arrow
 }
 
+// inMap checks if the given coordinates are within the map
 func (l *LabMap) inMap(x, y int) bool {
 	return x >= 0 && x < l.width && y >= 0 && y < l.height
 }
@@ -192,7 +202,7 @@ func findPossibleObstacles(labMap *LabMap) int {
 	for y, row := range labMap.lab {
 		for x := range row {
 			if visited, _ := labMap.isVisited(x, y); visited {
-				if possible, _ := isPossibleObstacle(labMap, x, y); possible {
+				if possible, _ := isPossibleObstacle(x, y); possible {
 					count++
 				}
 			}
@@ -205,7 +215,7 @@ func findPossibleObstacles(labMap *LabMap) int {
 // then walks the guard from the initial position until he
 // a) leaves the map, then it's not a possible obstacle
 // b) walks into a place he has visited before in the same direction, then it's a possible obstacle
-func isPossibleObstacle(labMap *LabMap, x, y int) (bool, Coordinate) {
+func isPossibleObstacle(x, y int) (bool, Coordinate) {
 	// new obstacle-position
 	pos := Coordinate{x, y}
 
@@ -235,6 +245,7 @@ func isPossibleObstacle(labMap *LabMap, x, y int) (bool, Coordinate) {
 	return false, pos
 }
 
+// nextPos calculates the next coordinates based on the current position and the direction
 func nextPos(c Coordinate, d Direction) Coordinate {
 	next := Coordinate{
 		x: c.x,
@@ -253,6 +264,7 @@ func nextPos(c Coordinate, d Direction) Coordinate {
 	return next
 }
 
+// countVisited counts the number of visited cells in the labMap
 func countVisited(labMap *LabMap) int {
 	count := 0
 	for y, row := range labMap.lab {
@@ -266,6 +278,7 @@ func countVisited(labMap *LabMap) int {
 	return count
 }
 
+// parseMap parses the input into a LabMap
 func parseMap(input []string) *LabMap {
 	labMap := newLabMap(len(input[0]), len(input))
 	for i, line := range input {
@@ -291,6 +304,7 @@ func parseMap(input []string) *LabMap {
 	return labMap
 }
 
+// isGuard checks if the cell is the current guards position
 func isGuard(cell rune) bool {
 	return cell == '^' || cell == 'v' || cell == '<' || cell == '>'
 }
