@@ -19,7 +19,7 @@ func Test_day1(t *testing.T) {
 		{
 			name:     "input",
 			filename: "input.csv",
-			want:     1873376,
+			want:     0,
 		},
 	}
 	for _, test := range tests {

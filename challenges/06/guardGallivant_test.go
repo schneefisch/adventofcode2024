@@ -23,8 +23,8 @@ func TestGuardGallivant(t *testing.T) {
 		{
 			name:                 "Input",
 			args:                 args{filename: "input.txt"},
-			want:                 5030,
-			wantObstaclePosCount: 1928,
+			want:                 0,
+			wantObstaclePosCount: 0,
 			wantErr:              false,
 		},
 	}

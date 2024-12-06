@@ -25,7 +25,7 @@ func Test_redNosedReports(t *testing.T) {
 			args: args{
 				filename: "input.csv",
 			},
-			want: 290,
+			want: 0,
 		},
 	}
 	for _, test := range tests {

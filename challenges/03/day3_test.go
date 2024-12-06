@@ -18,7 +18,7 @@ func TestDay3(t *testing.T) {
 		{
 			name:     "day-input",
 			filename: "input.txt",
-			want:     95846796,
+			want:     0,
 			wantErr:  false,
 		},
 	}

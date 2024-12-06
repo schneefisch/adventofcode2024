@@ -2,6 +2,10 @@
 This repository contains my solutions for the
 [Advent of Code 2024](https://adventofcode.com/2024) challenges.
 
+> NOTE:<br>
+> The tests contain the solutions for the puzzles. If you want to solve them yourself, please do not look at the 
+> tests ;)
+
 Similar to last year, my personal approach is to solve the puzzles using
 * GoLang
 * Test-Driven-Development (TDD)

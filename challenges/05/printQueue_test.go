@@ -33,8 +33,8 @@ func TestPrintQueue(t *testing.T) {
 				filenameOrdering: "input_rules.txt",
 				filenameUpdates:  "input_updates.txt",
 			},
-			want:        4774,
-			wantInvalid: 6004,
+			want:        0,
+			wantInvalid: 0,
 			wantErr:     false,
 		},
 	}
