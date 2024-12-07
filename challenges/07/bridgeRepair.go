@@ -37,11 +37,22 @@ func BridgeRepair(filename string) (int, int, error) {
 // sumValidEquations sums the solutions of all valid equations
 func sumValidEquations(equations []Equation, operators []rune) int {
 	sum := 0
+	ch := make(chan int, len(equations))
+	defer close(ch)
+
 	for _, equation := range equations {
-		if isValidEquation(equation, operators) {
-			sum += equation.solution
-		}
+		go func(eq Equation) {
+			if isValidEquation(eq, operators) {
+				ch <- equation.solution
+			} else {
+				ch <- 0
+			}
+		}(equation)
 	}
+	for range equations {
+		sum += <-ch
+	}
+
 	return sum
 }
 

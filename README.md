@@ -22,14 +22,14 @@ I'm running these tests on a MacBook Pro 2021 with an Apple M1 Max processor and
 
 ![execution_time.png](execution_time.png)
 
-| Day | Run Duration |
-|-----|--------------|
-| 01  | 0.00s        |
-| 02  | 0.00s        |
-| 03  | 0.00s        |
-| 04  | 0.01s        |
-| 05  | 0.00s        |
-| 06  | 0.53s        |
-| 07  | 2.93s        |
-|     |              |
-|     |              |
+| Day | Run Duration               |
+|-----|----------------------------|
+| 01  | 0.00s                      |
+| 02  | 0.00s                      |
+| 03  | 0.00s                      |
+| 04  | 0.01s                      |
+| 05  | 0.00s                      |
+| 06  | 0.53s                      |
+| 07  | 2.93s (0.55s parallelized) |
+|     |                            |
+|     |                            |
