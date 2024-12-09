@@ -112,29 +112,6 @@ func (a *Amphipod) findLastBlock(advanced bool) (int, int) {
 
 // AdvancedFragment also defragments the disk but moving whole blockes instead of single blocks
 func (a *Amphipod) AdvancedFragment() {
-	//for a.currentPosition < len(a.disk) {
-	//    // finding the next space
-	//    emptySpaceIndex, emptySpaceLength := a.findNextSpace()
-	//    // from the end of the disk, find the last block that fits into the space
-	//    for {
-	//        lastBlockIndex, lastBlockSize := a.findLastBlock(true)
-	//        if emptySpaceLength >= lastBlockSize {
-	//            // move the block to the empty space
-	//            for i := 0; i < lastBlockSize; i++ {
-	//                a.disk[emptySpaceIndex+i], a.disk[lastBlockIndex+i] = a.disk[lastBlockIndex+i], a.disk[emptySpaceIndex+i]
-	//            }
-	//            // reset lastBlockIndes to last position
-	//            a.lastBlockPosition = len(a.disk) - 1
-	//            break
-	//        } else {
-	//            // block does not match, set index
-	//            a.lastBlockPosition = lastBlockIndex - 1
-	//        }
-	//    }
-	//    a.Print()
-	//    a.currentPosition = emptySpaceIndex + 1
-	//}
-
 	// iterate over all blocks from the end
 	for a.lastBlockPosition > a.currentPosition {
 		// find the next block from the end
