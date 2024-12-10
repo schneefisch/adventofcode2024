@@ -133,8 +133,15 @@ func RotateMatrix[T any](matrix [][]T) [][]T {
 	return rotated
 }
 
-// PrintMap prints a map of characters.
-func PrintMap(matrix [][]rune) {
+// PrintIntMap prints a map of integers.
+func PrintIntMap(matrix [][]int) {
+	for _, row := range matrix {
+		log.Println(row)
+	}
+}
+
+// PrintRuneMap prints a map of characters.
+func PrintRuneMap(matrix [][]rune) {
 	for _, row := range matrix {
 		log.Println(string(row))
 	}

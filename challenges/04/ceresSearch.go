@@ -18,10 +18,10 @@ func CeresSearch(filename string) (int, error) {
 	}
 
 	runeMap := util.SplitLinesToCharacterMap(lines)
-	util.PrintMap(runeMap)
+	util.PrintRuneMap(runeMap)
 	log.Println("Rotated map:")
 	rotatedMap := util.RotateMatrix(runeMap)
-	util.PrintMap(rotatedMap)
+	util.PrintRuneMap(rotatedMap)
 
 	//xmasOccurences := findOccurrencesInMap(runeMap)
 	//xmasOccurences += findOccurrencesInMap(rotatedMap)

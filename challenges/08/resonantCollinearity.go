@@ -157,5 +157,5 @@ func printMap(antennasMap *Map, withoutAntennas bool) {
 			mp[antinode.y][antinode.x] = '#'
 		}
 	}
-	util.PrintMap(mp)
+	util.PrintRuneMap(mp)
 }

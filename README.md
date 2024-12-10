@@ -33,4 +33,4 @@ I'm running these tests on a MacBook Pro 2021 with an Apple M1 Max processor and
 | 07  | 2.93s (0.55s parallel) |
 | 08  | 0.00s                  |
 | 09  | 0.13s                  |
-|     |                        |
+| 10  | 0.00s                  |

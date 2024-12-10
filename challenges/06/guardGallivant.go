@@ -175,12 +175,12 @@ func GuardGallivant(filename string) (int, int, error) {
 	}
 	input = newInput
 	labMap := parseMap(input)
-	util.PrintMap(labMap.lab)
+	util.PrintRuneMap(labMap.lab)
 
 	// walk the guard and mark visited until she leaves the map
 	for labMap.walkGuard() {
 		//log.Printf("Guard position: %v", labMap.guard)
-		//util.PrintMap(labMap.lab)
+		//util.PrintRuneMap(labMap.lab)
 	}
 
 	// count visited cells
@@ -237,7 +237,7 @@ func isPossibleObstacle(x, y int) (bool, Coordinate) {
 		if visited, d := modifiedMap.isVisited(next.x, next.y); visited && d == modifiedMap.guard.facing {
 			// found a place where the guard has visited before in the same direction
 			//log.Printf("Found possible obstacle at %v", pos)
-			//util.PrintMap(modifiedMap.lab)
+			//util.PrintRuneMap(modifiedMap.lab)
 			return true, pos
 		}
 	}

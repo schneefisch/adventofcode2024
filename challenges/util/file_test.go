@@ -60,9 +60,9 @@ func TestRotateMatrix(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			if got := RotateMatrix(test.matrix); !reflect.DeepEqual(got, test.want) {
 				t.Logf("error RotateMatrix() got:")
-				PrintMap(got)
+				PrintRuneMap(got)
 				t.Logf("error RotateMatrix() want:")
-				PrintMap(test.want)
+				PrintRuneMap(test.want)
 				t.Errorf("unexpected result")
 			}
 		})
