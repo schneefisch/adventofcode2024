@@ -1,4 +1,4 @@
-package _0
+package _10
 
 import (
 	"adventofcode2024/challenges/util"
