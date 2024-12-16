@@ -125,7 +125,9 @@ func (v *Visited) getAll() []Node {
 }
 
 // bfs checks all possible next steps
-// it uses a bfs algorithm (breath-first search) to find the shortest path
+// it uses a modified bfs algorithm (breath-first search) to find the shortest path
+// modified, because the rotations are so extremely expensive.
+// NOTE: bfs is not the wanted result, it takes too long to find the shortest path
 func bfs(m *Maze) int {
 
 	// create queue of notes to visit
