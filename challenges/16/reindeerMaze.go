@@ -2,6 +2,7 @@ package _16
 
 import (
 	"adventofcode2024/challenges/util"
+	"container/heap"
 	"log"
 	"strconv"
 )
@@ -79,23 +80,12 @@ func (m *Maze) print() {
 	log.Printf("Reindeer position: {%d, %d}, %s", m.reindeer.x, m.reindeer.y, m.reindeer.dir.toString())
 }
 
-func ReindeerMaze(filename string) (int, int, error) {
-	input, err := util.ReadLines(filename)
-	if err != nil {
-		return 0, 0, err
-	}
-
-	maze := Maze{}
-	parseMaze(input, &maze)
-
-	maze.print()
-	lowestScore := walkMaze(&maze)
-
-	return lowestScore, 0, nil
+func (m *Maze) isInGrid(newPos Position) bool {
+	return newPos.x >= 0 && newPos.x < m.width && newPos.y >= 0 && newPos.y < m.height
 }
 
-func walkMaze(m *Maze) int {
-	return bfs(m)
+func (m *Maze) tileAt(pos Position) *Tile {
+	return m.grid[pos.y][pos.x]
 }
 
 type Node struct {
@@ -124,9 +114,128 @@ func (v *Visited) getAll() []Node {
 	return v.nodes
 }
 
-// bfs checks all possible next steps
-// it uses a modified bfs algorithm (breath-first search) to find the shortest path
-// modified, because the rotations are so extremely expensive.
+type PriorityQueue []Node
+
+func (pq PriorityQueue) Len() int            { return len(pq) }
+func (pq PriorityQueue) Less(i, j int) bool  { return pq[i].score < pq[j].score }
+func (pq PriorityQueue) Swap(i, j int)       { pq[i], pq[j] = pq[j], pq[i] }
+func (pq *PriorityQueue) Push(x interface{}) { *pq = append(*pq, x.(Node)) }
+func (pq *PriorityQueue) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	x := old[n-1]
+	*pq = old[0 : n-1]
+	return x
+}
+
+func ReindeerMaze(filename string) (int, int, error) {
+	input, err := util.ReadLines(filename)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	maze := Maze{}
+	parseMaze(input, &maze)
+
+	maze.print()
+	lowestScore := walkMaze(&maze)
+
+	return lowestScore, 0, nil
+}
+
+func walkMaze(m *Maze) int {
+	return dijkstra(m)
+}
+
+// dijkstra calculates the cheapest path in a dijkstra approach with weighted edges
+func dijkstra(m *Maze) int {
+	pq := &PriorityQueue{}
+	heap.Init(pq)
+	heap.Push(pq, Node{m.reindeer, 0})
+
+	visited := Visited{nodes: []Node{}}
+	directions := []Direction{North, East, South, West}
+
+	for pq.Len() > 0 {
+		current := heap.Pop(pq).(Node)
+
+		//log.Printf("Current position: {%d, %d}, %s with score %d", current.pos.x, current.pos.y, current.pos.dir.toString(), current.score)
+
+		// check if we reached the end node
+		if m.tileAt(current.pos).kind == End {
+			log.Printf("End found at {%d, %d} with score %d", current.pos.x, current.pos.y, current.score)
+			return current.score
+		}
+
+		// skip if already visited with a cheaper score
+		if oldScore, found := visited.find(current.pos); found && current.score >= oldScore {
+			continue
+		}
+		visited.add(current.pos, current.score)
+
+		// explore neighbours
+		for _, dir := range directions {
+			newPos := nextPos(current, dir)
+
+			// skip walls and off-grid tiles
+			if !m.isInGrid(newPos) || m.tileAt(newPos).kind == Wall {
+				continue
+			}
+
+			// calculate cost
+			newScore := current.score + rotationScore(current.pos.dir, dir) + 1
+			if oldScore, found := visited.find(newPos); !found || newScore < oldScore {
+				heap.Push(pq, Node{newPos, newScore})
+			}
+		}
+	}
+
+	return -1
+}
+
+// dfs calculates the shortest path in a depth-first search approach
+func dfs(m *Maze) int {
+	stack := []Node{{m.reindeer, 0}}
+	visited := Visited{nodes: []Node{}}
+	visited.add(m.reindeer, 0)
+
+	directions := []Direction{North, East, South, West}
+	cheapestScore := -1
+
+	for len(stack) > 0 {
+		// put the "last" entry from the stack
+		current := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+
+		if m.grid[current.pos.y][current.pos.x].kind == End {
+			if cheapestScore == -1 || current.score < cheapestScore {
+				cheapestScore = current.score
+			}
+			log.Printf("End found at {%d, %d} with score %d", current.pos.x, current.pos.y, current.score)
+			continue
+		}
+
+		for _, dir := range directions {
+			newPos := nextPos(current, dir)
+
+			if m.isInGrid(newPos) {
+				tile := m.grid[newPos.y][newPos.x]
+				newScore := current.score + rotationScore(current.pos.dir, dir) + 1
+				if tile.kind != Wall {
+					if oldScore, found := visited.find(newPos); !found || newScore < oldScore {
+						visited.add(newPos, newScore)
+						stack = append(stack, Node{newPos, newScore})
+					}
+				}
+			}
+		}
+	}
+
+	return cheapestScore
+}
+
+// bfs calculates the shortest path in a breadth-first search approach
+// it's a modified bfs, because the rotations are so extremely expensive.
 // NOTE: bfs is not the wanted result, it takes too long to find the shortest path
 func bfs(m *Maze) int {
 
@@ -159,25 +268,11 @@ func bfs(m *Maze) int {
 
 		// check possible directions and add to queue
 		for _, dir := range directions {
-			newPos := Position{
-				x:   current.pos.x,
-				y:   current.pos.y,
-				dir: dir,
-			}
-			switch dir {
-			case North:
-				newPos.y--
-			case East:
-				newPos.x++
-			case South:
-				newPos.y++
-			case West:
-				newPos.x--
-			}
+			newPos := nextPos(current, dir)
 
 			// check if the new position is within the maze
-			if newPos.x >= 0 && newPos.x < m.width && newPos.y >= 0 && newPos.y < m.height {
-				tile := m.grid[newPos.y][newPos.x]
+			if m.isInGrid(newPos) {
+				tile := m.tileAt(newPos)
 				newScore := current.score + rotationScore(current.pos.dir, dir) + 1
 				// check if it's a wall or already visited
 				if tile.kind != Wall {
@@ -213,6 +308,25 @@ func bfs(m *Maze) int {
 	}
 
 	return cheapestScore // end not found
+}
+
+func nextPos(current Node, dir Direction) Position {
+	newPos := Position{
+		x:   current.pos.x,
+		y:   current.pos.y,
+		dir: dir,
+	}
+	switch dir {
+	case North:
+		newPos.y--
+	case East:
+		newPos.x++
+	case South:
+		newPos.y++
+	case West:
+		newPos.x--
+	}
+	return newPos
 }
 
 func rotationScore(dir Direction, newDirection Direction) int {
