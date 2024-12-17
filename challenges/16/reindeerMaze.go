@@ -114,6 +114,7 @@ func (v *Visited) getAll() []Node {
 	return v.nodes
 }
 
+// PriorityQueue is a Priority-queue sorted by the score of the nodes. The lowest score is at the top of the queue.
 type PriorityQueue []Node
 
 func (pq PriorityQueue) Len() int            { return len(pq) }
@@ -156,10 +157,13 @@ func dijkstra(m *Maze) int {
 	visited := Visited{nodes: []Node{}}
 	directions := []Direction{North, East, South, West}
 
+	// ToDo: for part two, I need all of the cheapest paths.
+	// update the loop to get continue until all paths are found that have the same score, as soon as the score
+	// starts rising over the lowest score, we can stop the loop
+	// also return the visited nodes, so we can see the path and get the best places to sit on
+
 	for pq.Len() > 0 {
 		current := heap.Pop(pq).(Node)
-
-		//log.Printf("Current position: {%d, %d}, %s with score %d", current.pos.x, current.pos.y, current.pos.dir.toString(), current.score)
 
 		// check if we reached the end node
 		if m.tileAt(current.pos).kind == End {
