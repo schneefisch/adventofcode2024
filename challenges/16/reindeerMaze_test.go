@@ -30,7 +30,7 @@ func TestReindeerMaze(t *testing.T) {
 		{
 			name:    "Input",
 			args:    args{"input.txt"},
-			want:    0,
+			want:    95444,
 			want1:   0,
 			wantErr: false,
 		},
