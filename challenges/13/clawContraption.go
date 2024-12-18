@@ -74,7 +74,39 @@ func solveMachine(m Machine) (int, bool) {
 	return 0, false
 }
 
-func ClawContraption(filename string) int {
+// solveMachineCramersRule tries to find a solution for a single machine using Cramer's rule
+// see cramers-rule: https://en.wikipedia.org/wiki/Cramer%27s_rule
+func solveMachineCramersRule(m Machine) (int, bool) {
+	dx1, dx2 := m.ButtonA.X, m.ButtonB.X
+	dy1, dy2 := m.ButtonA.Y, m.ButtonB.Y
+	prizeX, prizeY := m.Prize.X, m.Prize.Y
+
+	// using Cramer's rule to solve the system of equations
+	det := dx1*dy2 - dx2*dy1
+	if det == 0 {
+		return 0, false // no solution
+	}
+
+	detX := prizeX*dy2 - prizeY*dx2
+	detY := dx1*prizeY - dy1*prizeX
+
+	a := detX / det
+	b := detY / det
+
+	// check if we have integer soltions
+	if a*dx1+b*dx2 != prizeX || a*dy1+b*dy2 != prizeY {
+		return 0, false
+	}
+
+	// check if we have a positove solution
+	if a < 0 || b < 0 {
+		return 0, false
+	}
+
+	return 3*a + b, true
+}
+
+func ClawContraption(filename string) (int, int) {
 	lines, err := util.ReadLines(filename)
 	if err != nil {
 		log.Fatal(err)
@@ -89,5 +121,19 @@ func ClawContraption(filename string) int {
 		}
 	}
 
-	return totalTokens
+	// solving part 2
+	totalTokens2 := 0
+
+	offset := 10000000000000
+	for i := range machines {
+		machines[i].Prize.X += offset
+		machines[i].Prize.Y += offset
+	}
+	for _, machine := range machines {
+		if tokens, ok := solveMachineCramersRule(machine); ok {
+			totalTokens2 += tokens
+		}
+	}
+
+	return totalTokens, totalTokens2
 }
