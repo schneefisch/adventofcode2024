@@ -2,7 +2,6 @@ package _12
 
 import (
 	"adventofcode2024/challenges/util"
-	"log"
 )
 
 type Direction int
@@ -71,11 +70,11 @@ func GardenGroups(filename string) (int, int, error) {
 	parseGarden(input, garden)
 	identifyRegions(garden)
 
-	util.PrintRuneMap(garden.gardenMap)
-	log.Println("Regions:")
+	//util.PrintRuneMap(garden.gardenMap)
+	//log.Println("Regions:")
 	result := 0
 	for _, region := range garden.regions {
-		log.Printf("Region with plant %c has %d fields and %d perimeter\n", region.plant, region.area, region.perimeter)
+		//log.Printf("Region with plant %c has %d fields and %d perimeter\n", region.plant, region.area, region.perimeter)
 		result += region.area * region.perimeter
 	}
 
