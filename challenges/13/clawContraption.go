@@ -7,10 +7,14 @@ import (
 	"strconv"
 )
 
+type Coordinate struct {
+	X, Y int
+}
+
 type Machine struct {
-	ButtonA struct{ X, Y int }
-	ButtonB struct{ X, Y int }
-	Prize   struct{ X, Y int }
+	ButtonA Coordinate
+	ButtonB Coordinate
+	Prize   Coordinate
 }
 
 // parseInput parses the input lines into Machine structs
