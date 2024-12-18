@@ -34,7 +34,7 @@ func TestRamRun(t *testing.T) {
 				71,
 				1024,
 			},
-			want:    0,
+			want:    374,
 			wantErr: false,
 		},
 	}
