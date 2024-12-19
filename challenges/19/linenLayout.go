@@ -6,17 +6,17 @@ import (
 	"strings"
 )
 
-func LinenLayout(filename string) (int, error) {
+func LinenLayout(filename string) (int, int, error) {
 	input, err := util.ReadLines(filename)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 	towels, designs := parseInput(input)
 	log.Printf("towels: %v\ndesigns: %v\n", towels, designs)
 
-	possibleDesigns := findPossibleDesigns(towels, designs)
+	possibleDesigns, allPatterns := findPossibleDesigns(towels, designs)
 
-	return possibleDesigns, nil
+	return possibleDesigns, allPatterns, nil
 }
 
 // parseInput parses the input into towels and designs
@@ -38,50 +38,60 @@ func parseInput(input []string) ([]string, []string) {
 	return towels, designs
 }
 
-func findPossibleDesigns(towels []string, designs []string) int {
+func findPossibleDesigns(towels []string, designs []string) (int, int) {
 	// The design is a combination of towels, defined by the collor-pattern of the towels.
 	// to find possible designs, we can iterate over all towels and check if the design can be made with a combination of towels.
 	// we can use a backtracking approach to find all possible designs.
 
 	possibleDesigns := make([]string, 0)
+	allPatterns := 0
 	for _, design := range designs {
-		if isPossibleDesign(towels, design) {
+		if isPossible, patterns := isPossibleDesign(towels, design); isPossible {
 			possibleDesigns = append(possibleDesigns, design)
+			allPatterns += patterns
 		}
 	}
 
-	return len(possibleDesigns)
+	return len(possibleDesigns), allPatterns
 }
 
-func isPossibleDesign(towels []string, design string) bool {
-	// dp[i] means "can we create the substring design[0:i] using our towels?"
-	// For example, if design is "rgbw":
-	// dp[0] = true  (empty string is always possible)
-	// dp[1] = can we make "r"?
-	// dp[2] = can we make "rg"?
-	// dp[3] = can we make "rgb"?
-	// dp[4] = can we make "rgbw"?
-	dp := make([]bool, len(design)+1)
+// isPossibleDesign uses dynamic programming to solve the problem of finding:
+// 1. Whether it's possible to create the target design using the given towels
+// 2. The total number of different ways to create the design
+func isPossibleDesign(towels []string, design string) (bool, int) {
 
-	// Empty string (length 0) is always possible to create
-	dp[0] = true
+	// The dp array stores the number of ways to create each prefix of the target design:
+	// - dp[i] represents the number of ways to create the first i characters of the design
+	// - dp[i] = 0 means it's impossible to create that prefix
+	// - dp[i] > 0 gives the number of different valid combinations for that prefix
+	dp := make([]int, len(design)+1)
+
+	// Empty string has exactly one way to make it
+	dp[0] = 1
 
 	// Try to build the design string incrementally from left to right
+	// The algorithm works by:
+	// 1. Starting with an empty string (dp[0] = 1, as there's one way to make empty string)
+	// 2. For each position i in the design:
+	//    - Try each towel as a possible ending piece
+	//    - If a towel can be placed at position i:
+	//      * Add the number of ways to build the prefix before this towel
+	// 3. The final value dp[len(design)] gives both:
+	//    - Whether it's possible (> 0)
+	//    - The total number of different valid combinations
 	for i := 1; i <= len(design); i++ {
 		// For each position, try every towel as a possible end piece
 		for _, towel := range towels {
-			// Three conditions must be met:
 			if i >= len(towel) && // 1. Current position is long enough to fit this towel
-				dp[i-len(towel)] && // 2. We could build the string up to the start of where this towel would go
+				dp[i-len(towel)] > 0 && // 2. We could build the string up to the start of where this towel would go
 				design[i-len(towel):i] == towel { // 3. The towel exactly matches the substring ending at current position
 
-				// If all conditions are met, we can build the string up to position i
-				dp[i] = true
-				break // Found a valid towel, no need to try others
+				// Add the number of ways to build the prefix to current position
+				dp[i] += dp[i-len(towel)]
 			}
 		}
 	}
 
-	// Can we build the entire design string?
-	return dp[len(design)]
+	// Return whether it's possible (dp[len(design)] > 0) and the number of ways
+	return dp[len(design)] > 0, dp[len(design)]
 }
