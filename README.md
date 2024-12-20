@@ -42,4 +42,6 @@ I'm running these tests on a MacBook Pro 2021 with an Apple M1 Max processor and
 | 16  | 0.07s                      |
 | 17  | 0.00s                      |
 | 18  | 0.40s                      |
+| 19  | 0.04s                      |
+| 20  | 11.36s (not yet correct)   |
 |     |                            |
