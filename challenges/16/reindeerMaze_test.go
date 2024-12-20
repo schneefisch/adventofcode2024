@@ -1,6 +1,9 @@
 package _16
 
-import "testing"
+import (
+	"adventofcode2024/challenges/util"
+	"testing"
+)
 
 func TestReindeerMaze(t *testing.T) {
 	type args struct {
@@ -54,8 +57,8 @@ func TestReindeerMaze(t *testing.T) {
 
 func Test_rotationScore(t *testing.T) {
 	type args struct {
-		dir          Direction
-		newDirection Direction
+		dir          util.Direction
+		newDirection util.Direction
 	}
 	tests := []struct {
 		name string
@@ -65,32 +68,32 @@ func Test_rotationScore(t *testing.T) {
 		{
 			name: "Test 90 degrees",
 			args: args{
-				dir:          North,
-				newDirection: East,
+				dir:          util.North,
+				newDirection: util.East,
 			},
 			want: 1000,
 		},
 		{
 			name: "Test 180 degrees",
 			args: args{
-				dir:          West,
-				newDirection: East,
+				dir:          util.West,
+				newDirection: util.East,
 			},
 			want: 2000,
 		},
 		{
 			name: "Test 270 degrees",
 			args: args{
-				dir:          South,
-				newDirection: East,
+				dir:          util.South,
+				newDirection: util.East,
 			},
 			want: 1000,
 		},
 		{
 			name: "test 0 or 360 degrees",
 			args: args{
-				dir:          North,
-				newDirection: North,
+				dir:          util.North,
+				newDirection: util.North,
 			},
 			want: 0,
 		},
