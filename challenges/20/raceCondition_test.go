@@ -1,6 +1,9 @@
 package _20
 
-import "testing"
+import (
+	"adventofcode2024/challenges/util"
+	"testing"
+)
 
 func TestRaceCondition(t *testing.T) {
 	type args struct {
@@ -55,6 +58,51 @@ func TestRaceCondition(t *testing.T) {
 			}
 			if test.want1 != 0 && got2 != test.want1 {
 				t.Errorf("RaceCondition() got2 = %v, want %v", got2, test.want1)
+			}
+		})
+	}
+}
+
+func Test_distance(t *testing.T) {
+	type args struct {
+		position  util.Position
+		targetPos util.Position
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{
+			name: "Test case 1",
+			args: args{position: util.Position{X: 0, Y: 0}, targetPos: util.Position{X: 1, Y: 1}},
+			want: 2,
+		},
+		{
+			name: "Test case 2",
+			args: args{position: util.Position{X: 0, Y: 0}, targetPos: util.Position{X: 0, Y: 1}},
+			want: 1,
+		},
+		{
+			name: "Test case 3",
+			args: args{position: util.Position{X: 15, Y: 15}, targetPos: util.Position{X: 15, Y: 15}},
+			want: 0,
+		},
+		{
+			name: "negative distance",
+			args: args{position: util.Position{X: 8, Y: 8}, targetPos: util.Position{X: 2, Y: 8}},
+			want: 6,
+		},
+		{
+			name: "negative distance 2",
+			args: args{position: util.Position{X: 8, Y: 8}, targetPos: util.Position{X: 2, Y: 0}},
+			want: 14,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := distance(tt.args.position, tt.args.targetPos); got != tt.want {
+				t.Errorf("distance() = %v, want %v", got, tt.want)
 			}
 		})
 	}

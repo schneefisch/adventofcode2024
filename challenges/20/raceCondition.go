@@ -59,34 +59,34 @@ func RaceCondition(filename string, threshold int) (int, int, error) {
 		}
 	}
 
-	cheatsExtended := findJumpPositionsExtended(maze, visited)
+	cheatMap := findJumpPositionsExtended(maze, visited)
 	cheatCountExtended := 0
-	for _, cheat := range cheatsExtended {
-		if cheat >= threshold {
-			cheatCountExtended++
+	for key, val := range cheatMap {
+		if key >= threshold {
+			cheatCountExtended += val
 		}
 	}
 
-	// Implement me
 	return cheatCount, cheatCountExtended, nil
 }
 
 // findJumpPositionsExtended finds all the "wall" tiles that are adjacent to two visited tiles
+// returns a map with the cheat score as key and the number of cheats with that score as value
 // ToDo: still not working, is finding too many cheats
-func findJumpPositionsExtended(maze *util.Maze, visited *Visited) []int {
-	cheats := make([]int, 0)
+func findJumpPositionsExtended(maze *util.Maze, visited *Visited) map[int]int {
+	cheats := make(map[int]int)
 	for _, node := range visited.nodes {
 		reachablePositions := findReachablePositions(maze, node.pos)
 
 		// for each reachable position find the cheat score
 		for _, targetPos := range reachablePositions {
+			// only consider positions that are on the path to the end
 			if targetScore, found := visited.find(targetPos); found {
-				// calculate the shortest distance from the start to the target no matter the walls
-				distance := distance(node.pos, targetPos)
-
-				cheatScore := node.score - targetScore - distance
+				// calculate the shortest dist from the start to the target no matter the walls
+				dist := distance(node.pos, targetPos)
+				cheatScore := node.score - targetScore - dist
 				if cheatScore > 0 {
-					cheats = append(cheats, cheatScore)
+					cheats[cheatScore]++
 				}
 			}
 		}
