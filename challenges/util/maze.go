@@ -82,7 +82,7 @@ func (m *Maze) TileAt(pos Position) *Tile {
 	return m.Grid[pos.Y][pos.X]
 }
 
-func (m *Maze) ParseMaze(input []string) {
+func (m *Maze) Parse(input []string) {
 	m.Height = len(input)
 	m.Width = len(input[0])
 	m.Grid = make([][]*Tile, m.Height)
@@ -108,6 +108,7 @@ func (m *Maze) ParseMaze(input []string) {
 			// set Position Position
 			if kind == Start {
 				m.Position = Position{x, y, East}
+				m.Start = Position{x, y, East}
 			}
 			if kind == End {
 				m.End = Position{x, y, East}

@@ -4,7 +4,8 @@ import "testing"
 
 func TestRaceCondition(t *testing.T) {
 	type args struct {
-		filename string
+		filename  string
+		threshold int
 	}
 	tests := []struct {
 		name    string
@@ -14,22 +15,39 @@ func TestRaceCondition(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Test case 1",
-			args: args{filename: "test1.txt"},
+			name:    "Test case 1",
+			args:    args{filename: "test1.txt", threshold: 12},
+			want:    8,
+			want1:   0,
+			wantErr: false,
+		},
+		{
+			name:    "Test case 2",
+			args:    args{filename: "test1.txt", threshold: 0},
+			want:    44,
+			want1:   0,
+			wantErr: false,
+		},
+		{
+			name:    "input",
+			args:    args{filename: "input.txt", threshold: 100},
+			want:    1346,
+			want1:   0,
+			wantErr: false,
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, got1, err := RaceCondition(tt.args.filename)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("RaceCondition() error = %v, wantErr %v", err, tt.wantErr)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got1, got2, err := RaceCondition(test.args.filename, test.args.threshold)
+			if (err != nil) != test.wantErr {
+				t.Errorf("RaceCondition() error = %v, wantErr %v", err, test.wantErr)
 				return
 			}
-			if got != tt.want {
-				t.Errorf("RaceCondition() got = %v, want %v", got, tt.want)
+			if test.want != 0 && got1 != test.want {
+				t.Errorf("RaceCondition() got1 = %v, want %v", got1, test.want)
 			}
-			if got1 != tt.want1 {
-				t.Errorf("RaceCondition() got1 = %v, want %v", got1, tt.want1)
+			if test.want1 != 0 && got2 != test.want1 {
+				t.Errorf("RaceCondition() got2 = %v, want %v", got2, test.want1)
 			}
 		})
 	}
