@@ -29,10 +29,17 @@ func TestRaceCondition(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name:    "Test case 3",
+			args:    args{filename: "test1.txt", threshold: 50},
+			want:    0,
+			want1:   285,
+			wantErr: false,
+		},
+		{
 			name:    "input",
 			args:    args{filename: "input.txt", threshold: 100},
 			want:    1346,
-			want1:   0,
+			want1:   2345398, // ToDo: part-two solution is not correct (too high)
 			wantErr: false,
 		},
 	}

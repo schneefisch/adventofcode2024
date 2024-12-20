@@ -59,8 +59,71 @@ func RaceCondition(filename string, threshold int) (int, int, error) {
 		}
 	}
 
+	cheatsExtended := findJumpPositionsExtended(maze, visited)
+	cheatCountExtended := 0
+	for _, cheat := range cheatsExtended {
+		if cheat >= threshold {
+			cheatCountExtended++
+		}
+	}
+
 	// Implement me
-	return cheatCount, 0, nil
+	return cheatCount, cheatCountExtended, nil
+}
+
+// findJumpPositionsExtended finds all the "wall" tiles that are adjacent to two visited tiles
+// ToDo: still not working, is finding too many cheats
+func findJumpPositionsExtended(maze *util.Maze, visited *Visited) []int {
+	cheats := make([]int, 0)
+	for _, node := range visited.nodes {
+		reachablePositions := findReachablePositions(maze, node.pos)
+
+		// for each reachable position find the cheat score
+		for _, targetPos := range reachablePositions {
+			if targetScore, found := visited.find(targetPos); found {
+				// calculate the shortest distance from the start to the target no matter the walls
+				distance := distance(node.pos, targetPos)
+
+				cheatScore := node.score - targetScore - distance
+				if cheatScore > 0 {
+					cheats = append(cheats, cheatScore)
+				}
+			}
+		}
+	}
+	return cheats
+}
+
+// distance calculates the shortest distance from the start to the target in a 2D grid
+func distance(position, targetPos util.Position) int {
+	distX := position.X - targetPos.X
+	distY := position.Y - targetPos.Y
+	if distX < 0 {
+		distX = -distX
+	}
+	if distY < 0 {
+		distY = -distY
+	}
+	return distX + distY
+}
+
+// findReachablePositions finds all the positions that are reachable from the given position
+// using the Manhattan distance
+func findReachablePositions(maze *util.Maze, position util.Position) []util.Position {
+	reachable := make([]util.Position, 0)
+	maxJumpDistance := 20
+
+	// check all positions within the manhattan distance of maxJumpDistance
+	for x := position.X - maxJumpDistance; x <= position.X+maxJumpDistance; x++ {
+		for y := position.Y - maxJumpDistance; y <= position.Y+maxJumpDistance; y++ {
+			newPos := util.Position{X: x, Y: y}
+			if maze.IsInGrid(newPos) && maze.TileAt(newPos).Kind != util.Wall {
+				reachable = append(reachable, newPos)
+			}
+		}
+	}
+
+	return reachable
 }
 
 // findJumpPositions finds all the "wall" tiles that are adjacent to two visited tiles
